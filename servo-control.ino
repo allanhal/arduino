@@ -1,20 +1,21 @@
 #include <Servo.h>
 
 // Define constants and variables
-const int button1Pin = 2; // Pin for the button
-const int button2Pin = 3; // Pin for the button
-const int button3Pin = 4; // Pin for the button
-const int button4Pin = 7; // Pin for the button
+const int button1Pin = 2;   // Pin for the button
+const int button2Pin = 3;   // Pin for the button
+const int button3Pin = 4;   // Pin for the button
+const int button4Pin = 7;   // Pin for the button
 
-int button1State = 0;     // Variable to store button state
-int button2State = 0;     // Variable to store button state
-int button3State = 0;     // Variable to store button state
-int button4State = 0;     // Variable to store button state
+int button1State = 0;       // Variable to store button state
+int button2State = 0;       // Variable to store button state
+int button3State = 0;       // Variable to store button state
+int button4State = 0;       // Variable to store button state
 
-int pos = 0;    // variable to store the servo position
+int pos = 0;                // variable to store the servo position
 
 Servo servo_5;
 Servo servo_6;
+Servo servo_9;              // levanta o braço
 
 void setup() {
   Serial.begin(9600); // Initialize Serial communication
@@ -23,8 +24,10 @@ void setup() {
 
   servo_5.attach(5, 500, 2500); // Attach servo to pin 5
   servo_6.attach(6, 500, 2500); // Attach servo to pin 6
+  servo_9.attach(9, 500, 2500); // Attach servo to pin 6
   servo_5.write(0);
   servo_6.write(0);
+  servo_9.write(0);
 
   pinMode(button1Pin, INPUT_PULLUP); // Set button pin as input with pull-up resistor
   pinMode(button2Pin, INPUT_PULLUP); // Set button pin as input with pull-up resistor
