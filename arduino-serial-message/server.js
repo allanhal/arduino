@@ -4,6 +4,9 @@ import express from "express";
 const app = express();
 const port = 3000;
 
+let currentPort = null;
+let serialPort = null;
+
 // Middleware to parse JSON body
 app.use(express.json());
 
@@ -16,7 +19,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// GET route without parameters
 app.get("/", async (req, res) => {
   let result = "";
   try {
@@ -33,8 +35,7 @@ app.get("/", async (req, res) => {
   res.send("Welcome to the homepage! <br><br>" + result);
 });
 
-// GET route without parameters
-app.get("/list", async (req, res) => {
+app.get("/ports", async (req, res) => {
   let result = [];
   try {
     const ports = await SerialPort.list();
@@ -43,7 +44,6 @@ app.get("/list", async (req, res) => {
       result.push(port.path);
     });
 
-    // res.json({ ports: ports.map((port) => port.path) });
     res.json(ports.map((port) => port.path));
   } catch (error) {
     console.error("Error listing ports:", error);
@@ -51,10 +51,39 @@ app.get("/list", async (req, res) => {
   }
 });
 
-// GET route with parameters
-app.get("/user/:id", (req, res) => {
-  const userId = req.params.id;
-  res.send(`User ID is: ${userId}`);
+app.get("/currentPort", async (req, res) => {
+  res.json(currentPort);
+});
+
+app.get("/setCurrentPort", (req, res) => {
+  const port = req.query.port;
+  console.log({ port, currentPort });
+
+  currentPort = port;
+
+  if (currentPort) {
+    connectToPort(port);
+  } else {
+    switchPort(currentPort, port);
+  }
+
+  res.json(currentPort);
+});
+
+app.get("/setServoStep", (req, res) => {
+  const { servo, step } = req.query;
+
+  if (serialPort) {
+    const message = `Hello Arduino! Servo (${servo}) Step (${step})`;
+    serialPort.write(message, (err) => {
+      if (err) {
+        return console.error("Error writing to Arduino:", err.message);
+      }
+      console.log(message);
+    });
+  }
+
+  res.json({ servo, step: Number(step) });
 });
 
 // POST route
@@ -67,3 +96,52 @@ app.post("/submit", (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
+
+// Function to connect to a new serial port
+const connectToPort = (arduinoPath) => {
+  // Create a new SerialPort instance
+  serialPort = new SerialPort({
+    path: arduinoPath,
+    baudRate: 9600, // Ensure this matches the baud rate in your Arduino sketch
+  });
+
+  // Set up a parser to handle incoming data
+  const parser = serialPort.pipe(new ReadlineParser({ delimiter: "\r\n" }));
+
+  // Event listener for when the port is successfully opened
+  serialPort.on("open", () => {
+    console.log(`Serial port ${arduinoPath} opened successfully.`);
+
+    // Example: Write data to the Arduino
+    serialPort.write("Hello Arduino!", (err) => {
+      if (err) {
+        return console.error("Error writing to Arduino:", err.message);
+      }
+      console.log("Message sent to Arduino.");
+    });
+  });
+
+  // Event listener for incoming data from the Arduino
+  parser.on("data", (data) => {
+    console.log(`Received from Arduino: ${data}`);
+  });
+
+  // Error handling
+  serialPort.on("error", (err) => {
+    console.error("Serial port error:", err.message);
+  });
+
+  return serialPort;
+};
+
+// Disconnect from the current port and connect to a new one
+const switchPort = (currentPort, newPortPath) => {
+  currentPort.close((err) => {
+    if (err) {
+      console.error("Error closing serial port:", err.message);
+      return;
+    }
+    console.log("Serial port closed successfully.");
+    connectToPort(newPortPath);
+  });
+};

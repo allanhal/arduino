@@ -6,6 +6,7 @@
     "serialport": "^13.0.0"
   },
   "scripts": {
-    "start": "nodemon server.js"
+    "back": "nodemon server.js",
+    "front": "cd front && yarn dev"
   }
 }
