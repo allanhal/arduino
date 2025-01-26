@@ -7,6 +7,8 @@ const port = 3000;
 let currentPort = null;
 let serialPort = null;
 
+let received = ""
+
 // Middleware to parse JSON body
 app.use(express.json());
 
@@ -72,24 +74,18 @@ app.get("/setCurrentPort", (req, res) => {
 
 app.get("/setServoStep", (req, res) => {
   const { servo, step } = req.query;
+  const message = servo + step;
 
   if (serialPort) {
-    const message = `Hello Arduino! Servo (${servo}) Step (${step})`;
     serialPort.write(message, (err) => {
       if (err) {
         return console.error("Error writing to Arduino:", err.message);
       }
-      console.log(message);
+      console.log("Sent: " + message);
     });
   }
 
-  res.json({ servo, step: Number(step) });
-});
-
-// POST route
-app.post("/submit", (req, res) => {
-  const { name, email } = req.body;
-  res.send(`Received submission from ${name} with email ${email}`);
+  res.json(message);
 });
 
 // Start the server
@@ -109,21 +105,21 @@ const connectToPort = (arduinoPath) => {
   const parser = serialPort.pipe(new ReadlineParser({ delimiter: "\r\n" }));
 
   // Event listener for when the port is successfully opened
-  serialPort.on("open", () => {
-    console.log(`Serial port ${arduinoPath} opened successfully.`);
+  // serialPort.on("open", () => {
+  //   console.log(`Serial port ${arduinoPath} opened successfully.`);
 
-    // Example: Write data to the Arduino
-    serialPort.write("Hello Arduino!", (err) => {
-      if (err) {
-        return console.error("Error writing to Arduino:", err.message);
-      }
-      console.log("Message sent to Arduino.");
-    });
-  });
+  //   // Example: Write data to the Arduino
+  //   serialPort.write("Hello Arduino!", (err) => {
+  //     if (err) {
+  //       return console.error("Error writing to Arduino:", err.message);
+  //     }
+  //     console.log("Message sent to Arduino.");
+  //   });
+  // });
 
   // Event listener for incoming data from the Arduino
   parser.on("data", (data) => {
-    console.log(`Received from Arduino: ${data}`);
+    console.log(`Received: ${data}`);
   });
 
   // Error handling

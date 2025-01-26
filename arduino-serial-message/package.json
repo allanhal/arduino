@@ -1,12 +1,15 @@
 {
   "dependencies": {
     "@serialport/parser-readline": "^13.0.0",
+    "clsx": "^2.1.1",
     "express": "^4.21.2",
     "nodemon": "^3.1.9",
-    "serialport": "^13.0.0"
+    "serialport": "^13.0.0",
+    "tailwind-merge": "^2.6.0"
   },
   "scripts": {
-    "back": "nodemon server.js",
-    "front": "cd front && yarn dev"
+    "back": "node server.js",
+    "front": "cd front && yarn dev",
+    "kill": "npx kill-port 3000"
   }
 }

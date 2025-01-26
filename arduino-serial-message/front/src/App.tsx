@@ -1,13 +1,33 @@
 import './App.css';
 
+import { ClassValue, clsx } from 'clsx';
 import { useEffect, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 
-const servos = ["X", "Y", "Z", "A"];
-const steps = [-10, -5, -1, 1, 5, 10];
+export const cn = (...inputs: ClassValue[]) => {
+  return twMerge(clsx(inputs));
+};
+
+const servos = ["x", "y", "z", "a", "b"];
+// const steps = [
+//   -180, -100, -50, -25, -20, -15, -10, -5, -1,  1, 5, 10, 15, 20, 25, 50, 100,
+//   180,
+// ];
+
+const stepsBase = [1, 5, 10, 15, 20, 25, 50, 90, 100, 180];
+
+const steps: unknown[] = [];
+stepsBase.forEach((step) => {
+  steps.push(step);
+});
+stepsBase.forEach((step) => {
+  steps.push(-step);
+});
 
 function App() {
   const [ports, setPorts] = useState([]);
   const [currentPort, setCurrentPort] = useState();
+  const [currentDelay, setCurrentDelay] = useState(80);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -65,6 +85,9 @@ function App() {
     servo: string;
     step: number;
   }) => {
+    if (servo === "s") {
+      setCurrentDelay(step);
+    }
     setLoading(true);
     setError(null);
     try {
@@ -131,10 +154,40 @@ function App() {
       <h1 className="text-2xl font-bold mb-4">Servos</h1>
 
       <div>
+        <div>
+          <p className="text-3xl font-bold mb-4">current delay</p>
+          <p className="mb-4">{currentDelay}</p>
+          <p className="text-3xl font-bold mb-4">s</p>
+          <div className="grid grid-cols-6 gap-4">
+            {[
+              0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 150, 160, 180,
+              200,
+            ].map((step, index2) => (
+              <button
+                key={index2}
+                onClick={() => fetchSetServoStep({ servo: "s", step })}
+                className="mb-4 "
+              >
+                <h2 className="text-lg font-semibold">
+                  {currentDelay === step ? "(" : ""}
+                  {step}
+                  {currentDelay === step ? ")" : ""}
+                </h2>
+              </button>
+            ))}
+          </div>
+        </div>
         {servos.map((servo, index1) => (
           <div key={index1}>
-            <p className="text-3xl font-bold underline mb-4">{servo}</p>
-            <div className="grid grid-cols-6 gap-4">
+            <p className="text-3xl font-bold mb-4">{servo}</p>
+            <div
+              // className={cn(
+              //   "grid  gap-4",
+              //   "grid-cols-2"
+              //   `Number((steps.length/2).toFixed(0))`
+              // )}
+              className="grid grid-cols-10 gap-4"
+            >
               {steps.map((step, index2) => (
                 <button
                   key={`${index1}-${index2}`}
