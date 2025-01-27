@@ -7,7 +7,7 @@ const port = 3000;
 let currentPort = null;
 let serialPort = null;
 
-let received = ""
+let received = "";
 
 // Middleware to parse JSON body
 app.use(express.json());
@@ -88,6 +88,11 @@ app.get("/setServoStep", (req, res) => {
   res.json(message);
 });
 
+app.get("/getCurrentPosition", (req, res) => {
+  // x90 - y45 - z45 - a45 - b45 - s45
+  res.json({ received });
+});
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
@@ -105,20 +110,21 @@ const connectToPort = (arduinoPath) => {
   const parser = serialPort.pipe(new ReadlineParser({ delimiter: "\r\n" }));
 
   // Event listener for when the port is successfully opened
-  // serialPort.on("open", () => {
-  //   console.log(`Serial port ${arduinoPath} opened successfully.`);
+  serialPort.on("open", () => {
+    console.log(`Serial port ${arduinoPath} opened successfully.`);
 
-  //   // Example: Write data to the Arduino
-  //   serialPort.write("Hello Arduino!", (err) => {
-  //     if (err) {
-  //       return console.error("Error writing to Arduino:", err.message);
-  //     }
-  //     console.log("Message sent to Arduino.");
-  //   });
-  // });
+    // Example: Write data to the Arduino
+    serialPort.write("Hello Arduino!", (err) => {
+      if (err) {
+        return console.error("Error writing to Arduino:", err.message);
+      }
+      console.log("Message sent to Arduino.");
+    });
+  });
 
   // Event listener for incoming data from the Arduino
   parser.on("data", (data) => {
+    received = data;
     console.log(`Received: ${data}`);
   });
 

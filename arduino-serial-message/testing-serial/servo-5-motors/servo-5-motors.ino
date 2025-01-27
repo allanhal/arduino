@@ -53,7 +53,8 @@ void setup() {
   pinMode(button3Pin, INPUT_PULLUP);
 
   // SERVO - 2
-  servo2.write(45); // Default position to servo2
+  // servo2.write(45); // Default position to servo2
+  servo2.write(90); // Default position to servo2
   servo2.attach(3);
   
   // SERVO - 1
@@ -61,7 +62,8 @@ void setup() {
   servo1.attach(2);
 
   // SERVO - 3
-  servo3.write(0); // Default position to servo3
+  // servo3.write(0); // Default position to servo3
+  servo3.write(90); // Default position to servo3
   servo3.attach(4);
 
   // SERVO - 4
@@ -69,7 +71,7 @@ void setup() {
   servo4.attach(5);
 
   // SERVO - 5
-  servo5.write(180); // Default position to servo5
+  servo5.write(90); // Default position to servo5
   servo5.attach(6);
   
   currentServo = &servo1;
@@ -112,8 +114,8 @@ void loop() {
       newPosition = servoToMove->read() + step;
 
       moveServoSlowly(*servoToMove, newPosition, currentDelay); // Pass by reference
-      Serial.println("x"+String(servo1.read())+" - y"+String(servo2.read())+" - z"+String(servo2.read())+" - a"+String(servo2.read())+" - b"+String(servo2.read())+" - s"+String(servo2.read()));
     }
+    Serial.println("x"+String(servo1.read())+" - y"+String(servo2.read())+" - z"+String(servo3.read())+" - a"+String(servo4.read())+" - b"+String(servo5.read())+" - s"+String(currentDelay));
     
     // Read button states
     button1State = digitalRead(button1Pin) == LOW;

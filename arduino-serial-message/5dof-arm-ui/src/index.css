@@ -1,0 +1,25 @@
+/* src/styles.css */
+.slider-thumb {
+  background: #007bff;
+  border: 2px solid #0056b3;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.slider-track {
+  background: #ddd;
+  height: 8px;
+  border-radius: 4px;
+}
+
+.thumb-value {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: #007bff;
+  font-weight: bold;
+}
